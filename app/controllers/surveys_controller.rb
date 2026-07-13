@@ -1,5 +1,5 @@
 class SurveysController < ApplicationController
-  before_action :set_survey, only: %i[show edit update publish close]
+  before_action :set_survey, only: %i[show edit update publish close export_responses]
 
   def index
     @surveys = Current.user.surveys.recent_first
@@ -7,6 +7,15 @@ class SurveysController < ApplicationController
 
   def show
     @questions = @survey.questions.includes(:question_options, :answers)
+  end
+
+  def export_responses
+    respond_to do |format|
+      format.csv do
+        send_data @survey.responses_to_csv,
+          filename: "#{@survey.title.parameterize}-responses-#{Date.current.iso8601}.csv"
+      end
+    end
   end
 
   def new

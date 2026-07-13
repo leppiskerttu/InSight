@@ -72,4 +72,24 @@ class SurveysControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to survey_path(@survey)
     assert_equal "completed", AiReport.order(:id).last.status
   end
+
+  test "export_responses returns a CSV file of responses" do
+    get export_responses_survey_path(@survey, format: :csv)
+
+    assert_response :success
+    assert_equal "text/csv", response.media_type
+
+    csv = CSV.parse(response.body, headers: true)
+    assert_equal 1, csv.count
+    assert_equal "Keep it simple", csv.first[@text_question.prompt]
+    assert_equal "AI assistant", csv.first[@multiple_choice_question.prompt]
+  end
+
+  test "export_responses is scoped to the current user's surveys" do
+    other_survey = surveys(:two)
+
+    get export_responses_survey_path(other_survey, format: :csv)
+
+    assert_response :not_found
+  end
 end

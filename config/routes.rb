@@ -12,6 +12,7 @@ Rails.application.routes.draw do
     member do
       patch :publish
       patch :close
+      get :export_responses
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

@@ -31,7 +31,9 @@ Already implemented:
 - response storage using `ResponseSession` and `Answer`
 - results dashboard on the survey show page
 - AI summary generation via `AiReportGenerator`, which now calls a real LLM (`AiSummary::AnthropicProvider`, Anthropic Messages API) when `ANTHROPIC_API_KEY` is set, and automatically falls back to a deterministic local heuristic (`AiSummary::HeuristicProvider`) if the key is missing or the call fails. See `README.md` "AI Summary Provider" section.
-- tests and Rubocop were green as of the last verified run on a machine with the correct Ruby/bundler toolchain (3.3.11). NOTE: the most recent change (LLM provider integration, plus new tests in `test/services/ai_summary/anthropic_provider_test.rb` and `test/services/ai_report_generator_test.rb`) was only syntax-checked, not run through `bin/rails test` / `bin/rubocop`, because that was done from a sandboxed environment without a working Rails toolchain or network access to install gems. Run both before trusting this is still green.
+- CSV export of survey responses: `Survey#responses_to_csv`, wired up via `GET /surveys/:id/export_responses.csv` (`SurveysController#export_responses`), with an "Export CSV" link on the survey show page next to "Generate AI summary". One row per `ResponseSession`, one column per question (ordered by position); multiple-choice cells show the option label, scale cells the numeric value, text cells the raw answer; unanswered questions render as a blank cell. Tests in `test/models/survey_test.rb` and `test/controllers/surveys_controller_test.rb`.
+- tests and Rubocop are green as of 2026-07-13, run on this machine with Ruby 3.3.11 via rbenv (`~/.rbenv/versions/3.3.11`, not on PATH by default — prefix commands with `export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"`). `bin/rails test`: 40 runs, 0 failures. `bin/rubocop`: 72 files, no offenses.
+- Two toolchain fixes were needed to get here and are now in place: (1) minitest 6.x dropped `Object#stub`/`Minitest::Mock` out of core — added `gem "minitest-mock"` to the `:test` group in `Gemfile` and `require "minitest/mock"` in `test/test_helper.rb`. (2) `csv` is being removed from Ruby's default gems starting 3.4 — added `gem "csv"` to `Gemfile` explicitly (used by CSV export) to avoid a future load failure.
 
 ## Main Goal
 Continue improving the product in small, controlled steps without breaking the existing flow.
@@ -95,10 +97,10 @@ Only after the core flow is stable:
 ## If You Need a Concrete Next Task
 1. connect the AI summary to a real LLM provider — DONE, see Current State above
 2. improve the survey results dashboard
-3. add CSV export of survey responses
+3. add CSV export of survey responses — DONE, see Current State above
 4. add a better report history view for `AiReport`
 
-Pick 2, 3, or 4. Before starting, run `bin/rails test` and `bin/rubocop` to confirm the repo is actually green on this machine, since the last change couldn't be verified in a full toolchain.
+Pick 2 or 4 next. Run `bin/rails test` and `bin/rubocop` before starting to confirm the repo is still green (remember the rbenv PATH prefix above — plain `bundle`/`bin/rails` will pick up system Ruby 2.6 otherwise and fail immediately).
 
 ## Example Output Expectations
 When you continue, do not give generic advice. Actually make the change, verify it, and then report:

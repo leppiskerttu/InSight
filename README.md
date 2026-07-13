@@ -74,11 +74,12 @@ The generated `AiReport#provider_model` shows which provider actually produced a
 
 ## Near-Term Build Plan
 
+CSV export of survey responses is done — see "Export CSV" on the survey show page.
+
 The next slices are:
 
-1. CSV export of survey responses
-2. a report history view for `AiReport`
-3. additional product polish (empty states, publish/closed copy)
+1. a report history view for `AiReport`
+2. additional product polish (empty states, publish/closed copy)
 
 ## Project Structure
 

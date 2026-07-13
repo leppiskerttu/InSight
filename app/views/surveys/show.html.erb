@@ -98,7 +98,10 @@
       <h2>Results</h2>
       <p class="subtle">Quick read of the responses collected so far.</p>
     </div>
-    <%= button_to "Generate AI summary", survey_ai_reports_path(@survey), method: :post, class: "button button--primary" %>
+    <div class="actions">
+      <%= link_to "Export CSV", export_responses_survey_path(@survey, format: :csv), class: "button button--secondary" %>
+      <%= button_to "Generate AI summary", survey_ai_reports_path(@survey), method: :post, class: "button button--primary" %>
+    </div>
   </div>
 
   <% if @questions.any? %>

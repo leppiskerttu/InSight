@@ -63,8 +63,36 @@ class Survey < ApplicationRecord
     end
   end
 
+  def responses_to_csv
+    ordered_questions = questions.to_a
+
+    CSV.generate(headers: true) do |csv|
+      csv << [ "Response ID", "Submitted at" ] + ordered_questions.map(&:prompt)
+
+      response_sessions.includes(:answers).order(:submitted_at, :id).each do |session|
+        answers_by_question_id = session.answers.index_by(&:question_id)
+
+        csv << [ session.id, session.submitted_at&.strftime("%Y-%m-%d %H:%M") ] +
+          ordered_questions.map { |question| csv_answer_value(answers_by_question_id[question.id], question) }
+      end
+    end
+  end
+
   private
     def ensure_public_token
       self.public_token ||= SecureRandom.hex(10)
+    end
+
+    def csv_answer_value(answer, question)
+      return nil if answer.nil?
+
+      case question.question_type
+      when "multiple_choice"
+        answer.value_json["option_label"].presence || answer.value_text
+      when "scale"
+        answer.value_number
+      else
+        answer.value_text
+      end
     end
 end
