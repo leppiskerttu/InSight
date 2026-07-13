@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  survey: one
+  prompt: MyText
+  question_type: text
+  required: false
+  position: 1
+  settings: {}
+
+two:
+  survey: two
+  prompt: MyText
+  question_type: multiple_choice
+  required: false
+  position: 1
+  settings: {}

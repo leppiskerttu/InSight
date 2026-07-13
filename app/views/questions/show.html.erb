@@ -1,0 +1,26 @@
+<% content_for :title, "Question" %>
+
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Question</p>
+    <h1><%= @question.prompt %></h1>
+    <p class="subtle"><%= @question.question_type.humanize %></p>
+  </div>
+  <div class="actions">
+    <%= link_to "Back to survey", survey_path(@survey), class: "button button--secondary" %>
+    <%= link_to "Edit question", edit_survey_question_path(@survey, @question), class: "button button--primary" %>
+  </div>
+</section>
+
+<section class="panel">
+  <% if @question.multiple_choice? %>
+    <h2>Options</h2>
+    <ul class="simple-list">
+      <% @question.question_options.each do |option| %>
+        <li><%= option.label %></li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="subtle">This question does not use predefined options.</p>
+  <% end %>
+</section>

@@ -1,0 +1,58 @@
+<% content_for :title, "Dashboard" %>
+
+<section class="page-header">
+  <div>
+    <p class="eyebrow">InsightPulse</p>
+    <h1>Research dashboard</h1>
+    <p class="subtle">Create surveys, track response activity, and prepare for AI-assisted insights.</p>
+  </div>
+  <%= link_to "New survey", new_survey_path, class: "button button--primary" %>
+</section>
+
+<section class="stats-grid">
+  <article class="stat-card">
+    <p class="stat-label">Draft surveys</p>
+    <p class="stat-value"><%= @draft_surveys_count %></p>
+  </article>
+  <article class="stat-card">
+    <p class="stat-label">Published surveys</p>
+    <p class="stat-value"><%= @published_surveys_count %></p>
+  </article>
+  <article class="stat-card">
+    <p class="stat-label">Responses collected</p>
+    <p class="stat-value"><%= @response_count %></p>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h2>Recent surveys</h2>
+      <p class="subtle">The latest work in your research workspace.</p>
+    </div>
+    <%= link_to "View all", surveys_path, class: "button button--secondary" %>
+  </div>
+
+  <% if @surveys.any? %>
+    <div class="survey-list">
+      <% @surveys.each do |survey| %>
+        <article class="survey-row">
+          <div>
+            <div class="survey-row__title">
+              <%= link_to survey.title, survey_path(survey), class: "survey-link" %>
+              <%= survey_status_badge(survey.status) %>
+            </div>
+            <p class="subtle"><%= survey.description.presence || "No description yet." %></p>
+          </div>
+          <p class="subtle"><%= survey.progress_label %></p>
+        </article>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <h2>No surveys yet</h2>
+      <p>Start by creating your first survey draft.</p>
+      <%= link_to "Create survey", new_survey_path, class: "button button--primary" %>
+    </div>
+  <% end %>
+</section>

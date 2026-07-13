@@ -1,0 +1,12 @@
+<% content_for :title, "Edit Survey" %>
+
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Edit survey</p>
+    <h1><%= @survey.title %></h1>
+  </div>
+</section>
+
+<section class="panel">
+  <%= render "form", survey: @survey %>
+</section>

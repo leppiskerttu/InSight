@@ -1,0 +1,38 @@
+<%= form_with model: [survey, question], class: "stack" do |form| %>
+  <% if question.errors.any? %>
+    <div class="flash flash--alert">
+      <p><strong><%= pluralize(question.errors.count, "error") %></strong> prevented this question from being saved.</p>
+      <ul>
+        <% question.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :prompt, "Question" %>
+    <%= form.text_area :prompt, rows: 4, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :question_type, "Question type" %>
+    <%= form.select :question_type, Question.question_types.keys.map { |key| [key.humanize, key] } %>
+  </div>
+
+  <div class="field checkbox-field">
+    <%= form.check_box :required %>
+    <%= form.label :required, "Required answer" %>
+  </div>
+
+  <div class="field">
+    <%= form.label :option_list, "Options for multiple choice" %>
+    <%= form.text_area :option_list, value: question.options_text, rows: 5, placeholder: "One option per line" %>
+    <p class="subtle">Only used when the question type is multiple choice.</p>
+  </div>
+
+  <div class="actions">
+    <%= form.submit class: "button button--primary" %>
+    <%= link_to "Cancel", survey_path(survey), class: "button button--secondary" %>
+  </div>
+<% end %>

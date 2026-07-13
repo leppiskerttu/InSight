@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  survey: one
+  submitted_at: 2026-07-09 13:14:12
+  respondent_identifier: MyString
+  metadata: {}
+
+two:
+  survey: two
+  submitted_at: 2026-07-09 13:14:12
+  respondent_identifier: MyString
+  metadata: {}

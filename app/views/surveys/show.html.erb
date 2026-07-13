@@ -1,0 +1,153 @@
+<% content_for :title, @survey.title %>
+
+<section class="page-header">
+  <div>
+    <div class="survey-row__title">
+      <p class="eyebrow">Survey overview</p>
+      <%= survey_status_badge(@survey.status) %>
+    </div>
+    <h1><%= @survey.title %></h1>
+    <p class="subtle"><%= @survey.description.presence || "Add a description so the survey purpose is clear to collaborators." %></p>
+  </div>
+  <div class="actions">
+    <%= link_to "Edit survey", edit_survey_path(@survey), class: "button button--secondary" %>
+    <% if @survey.draft? %>
+      <%= button_to "Publish survey", publish_survey_path(@survey), method: :patch, class: "button button--primary" %>
+    <% elsif @survey.published? %>
+      <%= button_to "Close survey", close_survey_path(@survey), method: :patch, class: "button button--secondary" %>
+    <% end %>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <article class="stat-card">
+    <p class="stat-label">Questions</p>
+    <p class="stat-value"><%= @questions.count %></p>
+  </article>
+  <article class="stat-card">
+    <p class="stat-label">Responses</p>
+    <p class="stat-value"><%= @survey.response_count %></p>
+  </article>
+  <article class="stat-card">
+    <p class="stat-label">Open text answers</p>
+    <p class="stat-value"><%= @survey.open_text_answers.count %></p>
+  </article>
+  <article class="stat-card">
+    <p class="stat-label">Public link token</p>
+    <p class="stat-value stat-value--small"><%= @survey.public_token %></p>
+  </article>
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h2>Response link</h2>
+      <p class="subtle">Share this URL once the survey is published.</p>
+    </div>
+  </div>
+
+  <p class="share-link"><%= public_survey_url(@survey.public_token) %></p>
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h2>Question builder</h2>
+      <p class="subtle">Build the survey content with the three MVP question types.</p>
+    </div>
+    <%= link_to "Add question", new_survey_question_path(@survey), class: "button button--primary" %>
+  </div>
+
+  <% if @survey.questions.any? %>
+    <ol class="question-list">
+      <% @survey.questions.each do |question| %>
+        <li class="question-card">
+          <div class="question-card__header">
+            <div>
+              <strong><%= link_to question.prompt, survey_question_path(@survey, question), class: "survey-link" %></strong>
+              <p class="subtle"><%= question.question_type.humanize %><%= " · Required" if question.required? %></p>
+            </div>
+            <div class="actions">
+              <%= link_to "Edit", edit_survey_question_path(@survey, question), class: "button button--secondary" %>
+              <%= button_to "Delete", survey_question_path(@survey, question), method: :delete, class: "button button--secondary", form: { data: { turbo_confirm: "Delete this question?" } } %>
+            </div>
+          </div>
+
+          <% if question.multiple_choice? && question.question_options.any? %>
+            <ul class="simple-list">
+              <% question.question_options.each do |option| %>
+                <li><%= option.label %></li>
+              <% end %>
+            </ul>
+          <% end %>
+        </li>
+      <% end %>
+    </ol>
+  <% else %>
+    <div class="empty-state">
+      <h2>No questions yet</h2>
+      <p>Start with a few questions so the public response flow has something real to render.</p>
+      <%= link_to "Add your first question", new_survey_question_path(@survey), class: "button button--primary" %>
+    </div>
+  <% end %>
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h2>Results</h2>
+      <p class="subtle">Quick read of the responses collected so far.</p>
+    </div>
+  </div>
+
+  <% if @questions.any? %>
+    <div class="results-grid">
+      <% @questions.each do |question| %>
+        <article class="result-card">
+          <div class="result-card__header">
+            <div>
+              <p class="eyebrow">Question result</p>
+              <h3><%= question.prompt %></h3>
+            </div>
+            <span class="status-badge"><%= question.question_type.humanize %></span>
+          </div>
+
+          <% if question.multiple_choice? %>
+            <% summary = @survey.question_summary(question) %>
+            <ul class="result-list">
+              <% summary.each do |label, count| %>
+                <li class="result-row">
+                  <span><%= label %></span>
+                  <strong><%= count %></strong>
+                </li>
+              <% end %>
+            </ul>
+          <% elsif question.scale? %>
+            <% summary = @survey.question_summary(question) %>
+            <p class="result-metric">
+              Average:
+              <strong><%= summary[:average]&.round(1) || "N/A" %></strong>
+              <span class="subtle">from <%= summary[:count] %> responses</span>
+            </p>
+          <% else %>
+            <% summary = @survey.question_summary(question) %>
+            <% if summary.any? %>
+              <div class="answer-snippets">
+                <% summary.each do |answer| %>
+                  <p><%= answer %></p>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="subtle">No text answers yet.</p>
+            <% end %>
+          <% end %>
+        </article>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <h2>No results yet</h2>
+      <p>Add questions and collect responses to see analytics here.</p>
+    </div>
+  <% end %>
+</section>

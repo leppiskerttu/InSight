@@ -1,0 +1,34 @@
+<% content_for :title, "Surveys" %>
+
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Surveys</p>
+    <h1>Your research projects</h1>
+    <p class="subtle">Manage drafts, publish response links, and track each study from one place.</p>
+  </div>
+  <%= link_to "New survey", new_survey_path, class: "button button--primary" %>
+</section>
+
+<section class="panel">
+  <% if @surveys.any? %>
+    <div class="survey-list">
+      <% @surveys.each do |survey| %>
+        <article class="survey-row">
+          <div>
+            <div class="survey-row__title">
+              <%= link_to survey.title, survey_path(survey), class: "survey-link" %>
+              <%= survey_status_badge(survey.status) %>
+            </div>
+            <p class="subtle"><%= survey.description.presence || "No description yet." %></p>
+          </div>
+          <p class="subtle"><%= survey.progress_label %></p>
+        </article>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <h2>No surveys yet</h2>
+      <p>Create the first draft to start shaping the product.</p>
+    </div>
+  <% end %>
+</section>

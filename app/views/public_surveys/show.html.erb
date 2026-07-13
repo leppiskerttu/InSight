@@ -1,0 +1,51 @@
+<% content_for :title, @survey.title %>
+
+<section class="auth-card public-card">
+  <div>
+    <p class="eyebrow">Public survey</p>
+    <h1><%= @survey.title %></h1>
+    <p class="subtle"><%= @survey.description.presence || "Please answer the questions below." %></p>
+  </div>
+
+  <% if @survey.accepting_responses? %>
+    <%= form_with url: public_survey_responses_path(@survey.public_token), class: "stack" do |form| %>
+      <% @survey.questions.each do |question| %>
+        <div class="field">
+          <label for="answer_<%= question.id %>">
+            <%= question.prompt %>
+            <% if question.required? %>
+              <span class="required-pill">Required</span>
+            <% end %>
+          </label>
+
+          <% if question.text? %>
+            <%= text_area_tag "answers[#{question.id}]", params.dig(:answers, question.id.to_s), id: "answer_#{question.id}", rows: 4 %>
+          <% elsif question.scale? %>
+            <%= select_tag "answers[#{question.id}]",
+              options_for_select((1..5).map { |value| [value, value] }, params.dig(:answers, question.id.to_s)),
+              include_blank: "Select a rating",
+              id: "answer_#{question.id}" %>
+          <% elsif question.multiple_choice? %>
+            <div class="option-list">
+              <% question.question_options.each do |option| %>
+                <label class="option-row">
+                  <%= radio_button_tag "answers[#{question.id}]", option.value, params.dig(:answers, question.id.to_s) == option.value %>
+                  <span><%= option.label %></span>
+                </label>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="actions">
+        <%= form.submit "Submit response", class: "button button--primary" %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="empty-state">
+      <h2>Survey unavailable</h2>
+      <p>This survey is currently not accepting new responses.</p>
+    </div>
+  <% end %>
+</section>

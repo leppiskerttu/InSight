@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "rails-server",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "export PATH=\"$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH\" && bin/rails server -p 3000"],
+      "port": 3000
+    }
+  ]
+}

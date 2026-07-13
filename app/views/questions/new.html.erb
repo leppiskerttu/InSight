@@ -1,0 +1,13 @@
+<% content_for :title, "New Question" %>
+
+<section class="page-header">
+  <div>
+    <p class="eyebrow">Question builder</p>
+    <h1>Add a question to <%= @survey.title %></h1>
+    <p class="subtle">Support the MVP types now: multiple choice, scale, and open text.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <%= render "form", survey: @survey, question: @question %>
+</section>

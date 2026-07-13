@@ -1,0 +1,27 @@
+<%= form_with model: survey, class: "stack" do |form| %>
+  <% if survey.errors.any? %>
+    <div class="flash flash--alert">
+      <p><strong><%= pluralize(survey.errors.count, "error") %></strong> prevented this survey from being saved.</p>
+      <ul>
+        <% survey.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :title %>
+    <%= form.text_field :title, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :description %>
+    <%= form.text_area :description, rows: 5 %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit class: "button button--primary" %>
+    <%= link_to "Cancel", survey.persisted? ? survey_path(survey) : surveys_path, class: "button button--secondary" %>
+  </div>
+<% end %>
