@@ -1,6 +1,23 @@
 # InsightPulse
 
+[![CI](https://github.com/leppiskerttu/InSight/actions/workflows/ci.yml/badge.svg)](https://github.com/leppiskerttu/InSight/actions/workflows/ci.yml)
+
 InsightPulse is a Ruby on Rails portfolio project for an AI-assisted survey research platform. The goal is to build a small but credible internal tool where a project manager can create surveys, publish them, collect responses, and later generate LLM-based summaries from open-ended answers.
+
+## Tech Stack
+
+- **Backend:** Ruby 3.3, Rails 8.1
+- **Database:** PostgreSQL 16
+- **Frontend:** server-rendered ERB views + Hotwire (Turbo Drive, Turbo Streams over Action Cable, Stimulus), Propshaft asset pipeline, no SPA framework
+- **Background jobs / real-time:** Active Job (`:async` adapter locally, Solid Queue in production), Action Cable for live UI updates — AI report generation runs in the background and pushes the finished result to the page over a websocket, no polling
+- **AI integrations:** two independent LLM providers, each with a deterministic offline fallback so the app never breaks without a key —
+  - Anthropic's Messages API for AI-generated survey summaries
+  - OpenAI's Chat Completions API for AI-assisted question wording and suggestions
+- **Auth:** Rails 8's built-in `has_secure_password` + session-based auth (no Devise)
+- **Testing:** Minitest, 69 tests covering models/controllers/services/jobs
+- **Code quality & security:** RuboCop (Rails Omakase style), Brakeman, bundler-audit, `importmap audit` — all run in CI on every push
+- **Local secrets:** `dotenv-rails`, with a committed `.env.test` that keeps the test suite hermetic (never makes a real, billed API call)
+- **Deployment-ready:** Dockerfile + Kamal for containerized deploys (not currently deployed anywhere — this is a local/CI-only portfolio build)
 
 ## Current Status
 
