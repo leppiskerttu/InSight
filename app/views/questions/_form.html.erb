@@ -13,6 +13,19 @@
   <div class="field">
     <%= form.label :prompt, "Question" %>
     <%= form.text_area :prompt, rows: 4, required: true %>
+    <%= form.button "Enhance with AI", name: "enhance_prompt", value: "1", class: "button button--secondary" %>
+    <p class="subtle">Draft a rough version, then let AI clean up the wording.</p>
+
+    <% if @ai_suggestions.present? %>
+      <div class="flash flash--notice">
+        <strong>Ideas to make it even better:</strong>
+        <ul class="simple-list">
+          <% @ai_suggestions.each do |suggestion| %>
+            <li><%= suggestion %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
   </div>
 
   <div class="field">

@@ -12,6 +12,7 @@ The project currently includes:
 - survey CRUD
 - survey status handling for `draft`, `published`, and `closed`
 - nested question builder with multiple choice, scale, and text question types
+- AI-assisted question wording: an "Enhance with AI" button rewrites a rough draft question and suggests further improvements, backed by OpenAI with an automatic offline fallback (see "Question Enhancement" below)
 - public response flow without login
 - results dashboard with per-question summaries
 - AI-generated report summaries, backed by Anthropic's API with an automatic offline fallback
@@ -67,6 +68,23 @@ bin/dev
 
 The generated `AiReport#provider_model` shows which provider actually produced a given report.
 
+## Question Enhancement
+
+The "Enhance with AI" button on the question form (new/edit) rewrites a rough
+draft question into a clearer one, and suggests further improvements, via `QuestionEnhancer`:
+
+- If `OPENAI_API_KEY` is set, enhancement is done by OpenAI's Chat Completions API (`QuestionEnhancement::OpenAiProvider`). The model defaults to `gpt-4o-mini` and can be overridden with `OPENAI_MODEL`. Besides rewriting the question, it returns 1-3 short "Ideas to make it even better" suggestions (e.g. switching to multiple choice, adding a follow-up question) shown under the field.
+- If the key is absent, or the API call fails for any reason, it falls back to a deterministic local heuristic (`QuestionEnhancement::HeuristicProvider`) that just capitalizes the draft and ensures it ends with a question mark, with no suggestions (that needs a real LLM to be meaningful).
+
+To enable the real LLM locally:
+
+```bash
+export OPENAI_API_KEY=sk-proj-...
+bin/dev
+```
+
+Note this is a separate provider/key from the AI Summary feature above — survey summaries still use Anthropic, question enhancement uses OpenAI. Both env vars can be set at once with no conflict.
+
 ## Demo Login
 
 - Email: `demo@example.com`
@@ -74,7 +92,7 @@ The generated `AiReport#provider_model` shows which provider actually produced a
 
 ## Near-Term Build Plan
 
-CSV export of survey responses is done — see "Export CSV" on the survey show page.
+Done: CSV export of survey responses, AI question enhancement with suggestions.
 
 The next slices are:
 

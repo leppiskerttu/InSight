@@ -12,7 +12,9 @@ class QuestionsController < ApplicationController
   def create
     @question = @survey.questions.new(question_params)
 
-    if save_question_with_options(@question)
+    if enhancing_prompt?
+      enhance_and_render(:new)
+    elsif save_question_with_options(@question)
       redirect_to survey_path(@survey), notice: "Question added."
     else
       render :new, status: :unprocessable_entity
@@ -25,7 +27,9 @@ class QuestionsController < ApplicationController
   def update
     @question.assign_attributes(question_params)
 
-    if save_question_with_options(@question)
+    if enhancing_prompt?
+      enhance_and_render(:edit)
+    elsif save_question_with_options(@question)
       redirect_to survey_path(@survey), notice: "Question updated."
     else
       render :edit, status: :unprocessable_entity
@@ -48,6 +52,18 @@ class QuestionsController < ApplicationController
 
     def question_params
       params.require(:question).permit(:prompt, :question_type, :required)
+    end
+
+    def enhancing_prompt?
+      params[:enhance_prompt].present?
+    end
+
+    def enhance_and_render(view)
+      result = QuestionEnhancer.call(prompt: @question.prompt, question_type: @question.question_type)
+      @question.prompt = result.enhanced_prompt
+      @ai_suggestions = result.suggestions
+      flash.now[:notice] = "AI improved the question wording (#{result.provider_model})."
+      render view
     end
 
     def save_question_with_options(question)
