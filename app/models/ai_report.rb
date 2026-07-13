@@ -8,4 +8,8 @@ class AiReport < ApplicationRecord
   }, default: :pending, validate: true
 
   attribute :raw_output, :json, default: {}
+
+  after_update_commit -> {
+    broadcast_replace_to survey, target: "ai_summary", partial: "surveys/ai_summary", locals: { survey: survey }
+  }
 end

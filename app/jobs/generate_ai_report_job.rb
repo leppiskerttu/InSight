@@ -1,8 +1,8 @@
 class GenerateAiReportJob < ApplicationJob
   queue_as :default
 
-  def perform(survey_id)
-    survey = Survey.find(survey_id)
-    AiReportGenerator.call(survey)
+  def perform(report_id)
+    report = AiReport.find(report_id)
+    AiReportGenerator.call(report)
   end
 end

@@ -14,7 +14,7 @@ class AiReportGeneratorTest < ActiveSupport::TestCase
     session = survey.response_sessions.create!(submitted_at: Time.current, respondent_identifier: "test")
     session.answers.create!(question: question, value_text: "Need clearer workflow and better automation")
 
-    report = AiReportGenerator.call(survey)
+    report = AiReportGenerator.call(survey.ai_reports.create!(status: :pending))
 
     assert report.completed?
     assert_match "Executive summary", report.summary_markdown
@@ -49,7 +49,7 @@ class AiReportGeneratorTest < ActiveSupport::TestCase
       end
     end.new
 
-    report = AiReportGenerator.new(survey, provider: failing_provider).call
+    report = AiReportGenerator.new(survey.ai_reports.create!(status: :pending), provider: failing_provider).call
 
     assert report.completed?
     assert_equal "local-heuristic", report.provider_model
@@ -94,7 +94,7 @@ class AiReportGeneratorTest < ActiveSupport::TestCase
       end
     end.new.with_result(fake_result)
 
-    report = AiReportGenerator.new(survey, provider: succeeding_provider).call
+    report = AiReportGenerator.new(survey.ai_reports.create!(status: :pending), provider: succeeding_provider).call
 
     assert report.completed?
     assert_equal "claude-test", report.provider_model

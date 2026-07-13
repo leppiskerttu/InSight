@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount ActionCable.server => "/cable"
+
   get "/s/:token", to: "public_surveys#show", as: :public_survey
   post "/s/:token/responses", to: "public_surveys#create_response", as: :public_survey_responses
 

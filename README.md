@@ -15,7 +15,8 @@ The project currently includes:
 - AI-assisted question wording: an "Enhance with AI" button rewrites a rough draft question and suggests further improvements, backed by OpenAI with an automatic offline fallback (see "Question Enhancement" below)
 - public response flow without login
 - results dashboard with per-question summaries
-- AI-generated report summaries, backed by Anthropic's API with an automatic offline fallback
+- CSV export of survey responses (see "Export CSV" on the survey show page)
+- AI-generated report summaries, backed by Anthropic's API with an automatic offline fallback (see "AI Summary Provider" below), generated asynchronously with a live-updating UI (no manual refresh needed — see "Async AI Report Generation" below)
 - seed data for local demoing
 
 ## Local Setup
@@ -75,6 +76,16 @@ Set `ANTHROPIC_API_KEY` in your local `.env` to enable it.
 
 The generated `AiReport#provider_model` shows which provider actually produced a given report.
 
+## Async AI Report Generation
+
+Clicking "Generate AI summary" no longer blocks the request on the LLM call. Instead:
+
+1. `AiReportsController#create` creates the `AiReport` immediately with `status: pending` (fast, no external call) and redirects right away — the page shows a "being generated" placeholder instantly.
+2. `GenerateAiReportJob` (run via Active Job, `:async` adapter in development — an in-process thread pool, no separate worker needed) does the slow part: it calls `AiReportGenerator`, which runs the LLM (or heuristic fallback) and updates the report to `completed` or `failed`.
+3. `AiReport` broadcasts that update over Turbo Streams (`after_update_commit`) to a channel scoped to the survey. The survey show page subscribes via `turbo_stream_from @survey` and replaces the `#ai_summary` section live — no polling, no manual refresh.
+
+This is why the project now has a JS pipeline (`importmap-rails` + `turbo-rails`, `app/javascript/application.js`, `config/importmap.rb`) and an Action Cable route (`mount ActionCable.server => "/cable"` in `config/routes.rb`) — neither existed before; the Gemfile had the gems but the app was 100% server-rendered with zero client-side JS. Action Cable uses the `async` adapter locally (see `config/cable.yml`), so no Redis is required for local dev.
+
 ## Question Enhancement
 
 The "Enhance with AI" button on the question form (new/edit) rewrites a rough
@@ -94,12 +105,13 @@ Note this is a separate provider/key from the AI Summary feature above — surve
 
 ## Near-Term Build Plan
 
-Done: CSV export of survey responses, AI question enhancement with suggestions.
+Done: CSV export of survey responses, AI question enhancement with suggestions, async/live-updating AI report generation.
 
 The next slices are:
 
 1. a report history view for `AiReport`
-2. additional product polish (empty states, publish/closed copy)
+2. fix a pre-existing UX bug: when a multiple-choice question fails to save (no options given), the re-rendered form loses whatever the user typed in the options field
+3. additional product polish (empty states, publish/closed copy)
 
 ## Project Structure
 

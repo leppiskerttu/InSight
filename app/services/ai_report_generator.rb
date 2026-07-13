@@ -1,23 +1,22 @@
 class AiReportGenerator
-  def self.call(survey)
-    new(survey).call
+  # Fills in an already-created, pending AiReport. The pending record is
+  # created synchronously (cheap, no external call) so the UI has something
+  # to render immediately; this class does the slow part (the LLM call) and
+  # is meant to be run from a background job.
+  def self.call(report, provider: AiSummary::AnthropicProvider.new)
+    new(report, provider: provider).call
   end
 
-  def initialize(survey, provider: AiSummary::AnthropicProvider.new)
-    @survey = survey
+  def initialize(report, provider: AiSummary::AnthropicProvider.new)
+    @report = report
+    @survey = report.survey
     @provider = provider
   end
 
   def call
-    report = @survey.ai_reports.create!(
-      status: :pending,
-      provider_model: attempted_provider_model,
-      generated_at: Time.current
-    )
-
     result = generate_result
 
-    report.update!(
+    @report.update!(
       status: :completed,
       provider_model: result.provider_model,
       summary_markdown: result.summary_markdown,
@@ -25,9 +24,9 @@ class AiReportGenerator
       generated_at: Time.current
     )
 
-    report
+    @report
   rescue StandardError => e
-    report&.update!(status: :failed, raw_output: { error: e.message }, generated_at: Time.current)
+    @report.update!(status: :failed, raw_output: { error: e.message }, generated_at: Time.current)
     raise
   end
 
@@ -42,10 +41,6 @@ class AiReportGenerator
       end
 
       heuristic_provider.call(open_text_answers: open_text_answers, survey: @survey)
-    end
-
-    def attempted_provider_model
-      @provider.available? ? @provider.model : heuristic_provider.class::PROVIDER_MODEL
     end
 
     def heuristic_provider

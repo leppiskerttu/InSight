@@ -65,11 +65,21 @@ class SurveysControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "can queue ai summary generation" do
-    assert_difference("AiReport.count", 1) do
-      post survey_ai_reports_path(@survey)
+    assert_enqueued_with(job: GenerateAiReportJob) do
+      assert_difference("AiReport.count", 1) do
+        post survey_ai_reports_path(@survey)
+      end
     end
 
     assert_redirected_to survey_path(@survey)
+    assert_equal "pending", AiReport.order(:id).last.status
+  end
+
+  test "ai summary generation completes once the background job runs" do
+    perform_enqueued_jobs do
+      post survey_ai_reports_path(@survey)
+    end
+
     assert_equal "completed", AiReport.order(:id).last.status
   end
 
