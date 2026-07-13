@@ -10,8 +10,12 @@
 # macOS Finder metadata
 .DS_Store
 
-# Ignore all environment files.
+# Ignore all environment files, except the checked-in template and the test
+# override (both are secret-free, and the test override keeps the test suite
+# from ever depending on a developer's real local API keys).
 /.env*
+!/.env.example
+!/.env.test
 
 # Ignore all logfiles and tempfiles.
 /log/*
