@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  survey: one
+  status: pending
+  provider_model: gpt-4.1-mini
+  summary_markdown: MyText
+  raw_output: {}
+  generated_at: 2026-07-09 13:14:29
+
+two:
+  survey: two
+  status: completed
+  provider_model: gpt-4.1-mini
+  summary_markdown: MyText
+  raw_output: {}
+  generated_at: 2026-07-09 13:14:29

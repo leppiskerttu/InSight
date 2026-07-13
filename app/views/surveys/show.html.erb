@@ -98,6 +98,7 @@
       <h2>Results</h2>
       <p class="subtle">Quick read of the responses collected so far.</p>
     </div>
+    <%= button_to "Generate AI summary", survey_ai_reports_path(@survey), method: :post, class: "button button--primary" %>
   </div>
 
   <% if @questions.any? %>
@@ -148,6 +149,36 @@
     <div class="empty-state">
       <h2>No results yet</h2>
       <p>Add questions and collect responses to see analytics here.</p>
+    </div>
+  <% end %>
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h2>AI summary</h2>
+      <p class="subtle">Generated insights from open-ended answers.</p>
+    </div>
+  </div>
+
+  <% if (ai_report = @survey.ai_reports.order(created_at: :desc).first) %>
+    <% if ai_report.completed? %>
+      <div class="ai-summary">
+        <div class="flash flash--notice">
+          <strong>Provider:</strong> <%= ai_report.provider_model %>
+          <span class="subtle">Generated at <%= ai_report.generated_at&.strftime("%Y-%m-%d %H:%M") %></span>
+        </div>
+        <%= simple_format(ai_report.summary_markdown) %>
+      </div>
+    <% elsif ai_report.pending? %>
+      <p class="subtle">AI summary is being generated. Refresh in a moment.</p>
+    <% else %>
+      <p class="subtle">AI summary failed. Try generating it again.</p>
+    <% end %>
+  <% else %>
+    <div class="empty-state">
+      <h2>No AI summary yet</h2>
+      <p>Click the button above to generate the first summary from the open-ended responses.</p>
     </div>
   <% end %>
 </section>

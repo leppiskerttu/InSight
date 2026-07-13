@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   root "dashboard#index"
   resources :surveys do
     resources :questions, except: :index
+    resources :ai_reports, only: :create
 
     member do
       patch :publish

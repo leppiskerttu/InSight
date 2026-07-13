@@ -2,6 +2,7 @@ class Survey < ApplicationRecord
   belongs_to :user
   has_many :questions, -> { order(:position, :id) }, dependent: :destroy
   has_many :response_sessions, dependent: :destroy
+  has_many :ai_reports, dependent: :destroy
 
   enum :status, {
     draft: "draft",

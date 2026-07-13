@@ -63,4 +63,13 @@ class SurveysControllerTest < ActionDispatch::IntegrationTest
     assert_match "Keep it simple", response.body
     assert_match "AI assistant", response.body
   end
+
+  test "can queue ai summary generation" do
+    assert_difference("AiReport.count", 1) do
+      post survey_ai_reports_path(@survey)
+    end
+
+    assert_redirected_to survey_path(@survey)
+    assert_equal "completed", AiReport.order(:id).last.status
+  end
 end
